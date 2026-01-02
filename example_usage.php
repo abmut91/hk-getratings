@@ -100,16 +100,50 @@ if ($appStoreData && $appStoreData['success']) {
         echo "</div>";
     }
 
-    echo "<strong>Ulasan Terbaru:</strong><br>";
+    // Histogram (Distribusi Rating)
+    if (!empty($d['histogram'])) {
+        echo "<div style='margin: 15px 0; padding: 15px; background: #fff; border: 1px solid #eee; border-radius: 8px;'>";
+        echo "<strong>Distribusi Rating:</strong><br>";
+        
+        // App Store Scraper mungkin format histogramnya beda, kita cek dulu
+        // Jika histogram object { '5': count, ... }
+        $stars = ['5', '4', '3', '2', '1'];
+        foreach ($stars as $star) {
+             $count = $d['histogram'][$star] ?? 0;
+             $total = $d['ratings'] > 0 ? $d['ratings'] : 1;
+             $percent = ($count / $total) * 100;
+             
+             echo "<div style='display: flex; align-items: center; margin: 4px 0;'>";
+             echo "<span style='width: 30px; font-weight:bold;'>{$star} <span class='star'>★</span></span>";
+             echo "<div class='histogram-bar'>";
+             echo "<div class='histogram-fill' style='width: {$percent}%;'></div>";
+             echo "</div>";
+             echo "<span style='width: 50px; text-align: right; font-size: 0.9em; color: #555;'>{$count}</span>";
+             echo "</div>";
+        }
+        echo "</div>";
+    }
+
+    echo "<strong>Ulasan Terbaru (" . count($d['recent_reviews']) . " ditampilkan):</strong><br>";
     if (!empty($d['recent_reviews']) && is_array($d['recent_reviews'])) {
-        echo "<ul>";
+        echo "<div class='review-container'>";
+        echo "<ul class='review-list'>";
         foreach ($d['recent_reviews'] as $review) {
              $author = $review['userName'] ?? 'User';
-             $rating = $review['score'] ?? '-';
+             $score = $review['score'] ?? 5;
+             $stars = str_repeat('★', $score);
              $text = $review['text'] ?? '';
-            echo "<li><strong>{$author}</strong> ({$rating}/5): {$text}</li>";
+             
+             echo "<li class='review-item'>";
+             echo "<div class='review-header'>";
+             echo "<span class='review-author'>{$author}</span>";
+             echo "<span class='star'>{$stars}</span>";
+             echo "</div>";
+             echo "<div>{$text}</div>";
+             echo "</li>";
         }
         echo "</ul>";
+        echo "</div>";
     } else {
         echo "Belum ada ulasan atau gagal mengambil ulasan.<br>";
     }

@@ -153,6 +153,7 @@ app.get('/api/appstore', async (req, res) => {
             appId: details.id,
             score: details.score,
             ratings: details.ratings, // Jumlah rating
+            histogram: details.histogram || null, // Distribusi bintang (jika tersedia)
             reviews_count: details.reviews, // Jumlah ulasan (jika ada)
             currentVersion: details.version,
             description: details.description,
