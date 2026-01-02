@@ -47,7 +47,7 @@ app.get('/setup', (req, res) => {
     }
 
     try {
-        const envContent = `PORT=3000\nGOOGLE_MAPS_API_KEY=${key}`;
+        const envContent = `PORT=80\nGOOGLE_MAPS_API_KEY=${key}`;
         fs.writeFileSync('.env', envContent);
         
         // Update process env agar langsung aktif tanpa restart (untuk sesi ini)
