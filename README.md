@@ -41,6 +41,40 @@ Setelah deploy ke Vercel, Anda bisa mengakses API ini secara online tanpa perlu 
 
 ---
 
+## Deployment ke VPS (IONOS / DigitalOcean / AWS)
+
+Jika Anda menggunakan VPS, berikut cara deploy menggunakan PM2:
+
+1.  **Masuk ke VPS** via SSH.
+2.  **Install Node.js & Git**:
+    ```bash
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    sudo apt-get install -y nodejs git
+    ```
+3.  **Install PM2** (Process Manager):
+    ```bash
+    sudo npm install -g pm2
+    ```
+4.  **Clone Repository**:
+    ```bash
+    git clone https://github.com/abmut91/hk-getratings.git
+    cd hk-getratings
+    ```
+5.  **Install Dependensi**:
+    ```bash
+    npm install
+    ```
+6.  **Setup Environment**:
+    Buat file `.env` dan isi konfigurasi (gunakan `nano .env`).
+7.  **Jalankan Aplikasi**:
+    ```bash
+    pm2 start ecosystem.config.js
+    pm2 save
+    pm2 startup
+    ```
+
+---
+
 ## Dokumentasi API Lengkap
 
 ### 1. Google Play Store
@@ -98,21 +132,8 @@ Mencari package name aplikasi.
 Mencari Place ID berdasarkan nama tempat.
 
 -   **URL:** `/api/search/maps`
--   **Params:**
-    -   `q` (required): Nama tempat yang dicari.
-    -   `key` (optional): API Key Google Maps (jika tidak diset di .env server).
+-   **Params:** `q` (keyword pencarian)
+-   **Params:** `key` (optional)
 
 **Contoh:**
-`GET http://localhost:3000/api/search/maps?q=Monas Jakarta`
-
----
-
-## Tips: Cara Mendapatkan Place ID
-
-Anda bisa mendapatkan Place ID dengan 2 cara:
-
-1.  **Menggunakan Endpoint Pencarian (Baru):**
-    Gunakan endpoint `/api/search/maps?q=NamaTempat` yang sudah disediakan di aplikasi ini.
-
-2.  **Menggunakan Tool Resmi Google:**
-    Kunjungi [Google Maps Place ID Finder](https://developers.google.com/maps/documentation/places/web-service/place-id).
+`GET http://localhost:3000/api/search/maps?q=Monas`
