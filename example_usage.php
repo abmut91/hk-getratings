@@ -76,7 +76,7 @@ echo "<hr>";
 // Cara dapat Place ID:
 // 1. Pakai endpoint search API: /api/search/maps?q=NamaTempat&key=API_KEY
 // 2. Atau cari di: https://developers.google.com/maps/documentation/places/web-service/place-id
-$placeId = 'ChIJN1t_tDeuEmsRUsoyG83frY4'; // Contoh: Google Sydney
+$placeId = 'ChIJOU59Vup_9i0RiiboXnWANDA'; // Contoh: Google Sydney
 // Jika API Key belum diset di Vercel, Anda bisa menambahkannya di URL: &key=API_KEY_ANDA
 $mapsUrl = "$baseUrl/api/maps?place_id=$placeId"; 
 $mapsData = getRating($mapsUrl);
@@ -84,12 +84,12 @@ $mapsData = getRating($mapsUrl);
 if ($mapsData && $mapsData['success']) {
     $d = $mapsData['data'];
     echo "<h3>Google Maps: {$d['title']}</h3>";
-    echo "Alamat: {$d['address']}<br>";
+    echo "Alamat: " . ($d['address'] ?? '-') . "<br>";
     echo "Rating: <strong>{$d['score']}</strong> / 5 ({$d['ratings']} users)<br>";
     echo "<img src='{$d['icon']}' width='30'><br>";
     
     echo "<strong>Ulasan Terbaru:</strong><br>";
-    if (!empty($d['recent_reviews'])) {
+    if (!empty($d['recent_reviews']) && is_array($d['recent_reviews'])) {
         echo "<ul>";
         foreach ($d['recent_reviews'] as $review) {
             echo "<li><strong>{$review['author_name']}</strong> ({$review['rating']}/5) - {$review['relative_time_description']}<br>{$review['text']}</li>";
