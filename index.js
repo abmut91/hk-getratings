@@ -85,7 +85,7 @@ app.get('/api/playstore', async (req, res) => {
                 appId: id,
                 lang: lang || 'id',
                 country: country || 'id',
-                num: 5 // Ambil 5 ulasan terbaru
+                num: 100 // Ambil 100 ulasan (Google Play Scraper support up to 3000 w/ pagination, but 100 is safe default)
             })
         ]);
 
@@ -105,7 +105,7 @@ app.get('/api/playstore', async (req, res) => {
             developer: details.developer,
             url: details.url,
             icon: details.icon,
-            recent_reviews: reviews
+            recent_reviews: reviews // Return semua yang didapat (default 100)
         };
 
         res.json(formatResponse(true, result));

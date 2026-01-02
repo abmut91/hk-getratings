@@ -49,17 +49,26 @@ if ($playStoreData && $playStoreData['success']) {
         echo "</div>";
     }
 
-    echo "<br><strong>Ulasan Terbaru:</strong><br>";
+    echo "<h4>Ulasan Terbaru</h4>";
     if (!empty($d['recent_reviews']) && is_array($d['recent_reviews'])) {
-        echo "<ul>";
+        echo "<div class='review-container'>";
+        echo "<ul class='review-list'>";
         foreach ($d['recent_reviews'] as $review) {
-             $author = $review['userName'] ?? 'User';
-             $rating = $review['score'] ?? '-';
-             $text = $review['text'] ?? '';
-             $date = $review['date'] ?? '';
-            echo "<li><strong>{$author}</strong> ({$rating}/5) - {$date}<br>{$text}</li>";
+            $author = $review['userName'] ?? 'User';
+            $score = $review['score'] ?? 5;
+            $stars = str_repeat('★', $score);
+            $text = $review['text'] ?? '';
+
+            echo "<li class='review-item'>";
+            echo "<div class='review-header'>";
+            echo "<span class='review-author'>{$author}</span>";
+            echo "<span class='star'>{$stars}</span>";
+            echo "</div>";
+            echo "<div>{$text}</div>";
+            echo "</li>";
         }
         echo "</ul>";
+        echo "</div>";
     } else {
         echo "Belum ada ulasan atau gagal mengambil ulasan.<br>";
     }
@@ -129,11 +138,25 @@ if ($mapsData && $mapsData['success']) {
     
     echo "<strong>Ulasan Terbaru:</strong><br>";
     if (!empty($d['recent_reviews']) && is_array($d['recent_reviews'])) {
-        echo "<ul>";
+        echo "<div class='review-container'>";
+        echo "<ul class='review-list'>";
         foreach ($d['recent_reviews'] as $review) {
-            echo "<li><strong>{$review['author_name']}</strong> ({$review['rating']}/5) - {$review['relative_time_description']}<br>{$review['text']}</li>";
+            $author = $review['author_name'];
+            $score = $review['rating'];
+            $stars = str_repeat('★', $score);
+            $time = $review['relative_time_description'];
+            $text = $review['text'];
+
+            echo "<li class='review-item'>";
+            echo "<div class='review-header'>";
+            echo "<span class='review-author'>{$author}</span>";
+            echo "<span class='star'>{$stars} ({$time})</span>";
+            echo "</div>";
+            echo "<div>{$text}</div>";
+            echo "</li>";
         }
         echo "</ul>";
+        echo "</div>";
     }
 } else {
     echo "<p>Gagal mengambil data Google Maps. Pastikan Place ID benar dan API Key valid.</p>";
