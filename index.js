@@ -52,6 +52,9 @@ app.get('/api/playstore', async (req, res) => {
             score: details.score,
             ratings: details.ratings,
             reviews: details.reviews,
+            version: details.version,
+            recentChanges: details.recentChanges,
+            developer: details.developer,
             url: details.url,
             icon: details.icon
         };
@@ -83,6 +86,8 @@ app.get('/api/appstore', async (req, res) => {
             score: details.score,
             ratings: details.ratings,
             reviews: details.reviews,
+            currentVersion: details.version,
+            developer: details.developer,
             url: details.url,
             icon: details.icon
         };
@@ -129,10 +134,13 @@ app.get('/api/maps', async (req, res) => {
             placeId: place_id,
             score: details.rating,
             ratings: details.user_ratings_total,
-            reviews: details.reviews ? details.reviews.length : 0,
+            address: details.formatted_address,
+            phone: details.formatted_phone_number,
+            website: details.website,
+            reviews_count: details.reviews ? details.reviews.length : 0,
             url: details.url,
             icon: details.icon,
-            raw_reviews: details.reviews
+            recent_reviews: details.reviews // Array ulasan lengkap (author, text, rating, time)
         };
 
         res.json(formatResponse(true, result));

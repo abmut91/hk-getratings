@@ -1,0 +1,103 @@
+<?php
+// Contoh cara mengambil data rating menggunakan PHP dari API Vercel Anda
+
+// 1. URL API Anda (Ganti dengan URL Vercel yang Anda dapatkan)
+$baseUrl = 'https://hk-getratings.vercel.app'; 
+// Atau gunakan localhost jika tes lokal:
+// $baseUrl = 'http://localhost:3000';
+
+// 2. Fungsi Helper untuk mengambil data
+function getRating($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    // Vercel menggunakan HTTPS, jadi kita perlu handle SSL verification (atau skip untuk dev)
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+    
+    $output = curl_exec($ch);
+    
+    if($output === false) {
+        return 'Curl Error: ' . curl_error($ch);
+    }
+    
+    curl_close($ch);
+    return json_decode($output, true);
+}
+
+echo "<h1>Demo Ambil Rating & Ulasan</h1>";
+
+// --- Google Play Store ---
+$playStoreId = 'com.whatsapp';
+$playStoreUrl = "$baseUrl/api/playstore?id=$playStoreId";
+$playStoreData = getRating($playStoreUrl);
+
+if ($playStoreData && $playStoreData['success']) {
+    $d = $playStoreData['data'];
+    echo "<h3>Google Play Store: {$d['title']}</h3>";
+    echo "Developer: {$d['developer']}<br>";
+    echo "Versi: {$d['version']}<br>";
+    echo "Rating: <strong>{$d['score']}</strong> / 5 ({$d['ratings']} users)<br>";
+    echo "<img src='{$d['icon']}' width='50'><br>";
+    echo "<strong>Apa yang baru:</strong><br>" . nl2br($d['recentChanges']);
+} else {
+    echo "<p>Gagal mengambil data Play Store</p>";
+}
+
+echo "<hr>";
+
+// --- App Store ---
+$appStoreId = '310633997'; // WhatsApp
+$appStoreUrl = "$baseUrl/api/appstore?id=$appStoreId";
+$appStoreData = getRating($appStoreUrl);
+
+if ($appStoreData && $appStoreData['success']) {
+    $d = $appStoreData['data'];
+    echo "<h3>App Store: {$d['title']}</h3>";
+    echo "Developer: {$d['developer']}<br>";
+    echo "Versi: {$d['currentVersion']}<br>";
+    echo "Rating: <strong>{$d['score']}</strong> / 5 ({$d['ratings']} users)<br>";
+    echo "<img src='{$d['icon']}' width='50'><br>";
+    echo "<strong>Ulasan Terbaru:</strong><br>";
+    if (!empty($d['reviews'])) {
+        echo "<ul>";
+        foreach ($d['reviews'] as $review) {
+            echo "<li><strong>{$review['userName']}</strong> ({$review['score']}/5): {$review['text']}</li>";
+        }
+        echo "</ul>";
+    }
+} else {
+    echo "<p>Gagal mengambil data App Store</p>";
+}
+
+echo "<hr>";
+
+// --- Google Maps ---
+// Ganti dengan Place ID yang valid
+$placeId = 'ChIJN1t_tDeuEmsRUsoyG83frY4'; // Contoh: Google Sydney
+// Jika API Key belum diset di Vercel, Anda bisa menambahkannya di URL: &key=API_KEY_ANDA
+$mapsUrl = "$baseUrl/api/maps?place_id=$placeId"; 
+$mapsData = getRating($mapsUrl);
+
+if ($mapsData && $mapsData['success']) {
+    $d = $mapsData['data'];
+    echo "<h3>Google Maps: {$d['title']}</h3>";
+    echo "Alamat: {$d['address']}<br>";
+    echo "Rating: <strong>{$d['score']}</strong> / 5 ({$d['ratings']} users)<br>";
+    echo "<img src='{$d['icon']}' width='30'><br>";
+    
+    echo "<strong>Ulasan Terbaru:</strong><br>";
+    if (!empty($d['recent_reviews'])) {
+        echo "<ul>";
+        foreach ($d['recent_reviews'] as $review) {
+            echo "<li><strong>{$review['author_name']}</strong> ({$review['rating']}/5) - {$review['relative_time_description']}<br>{$review['text']}</li>";
+        }
+        echo "</ul>";
+    }
+} else {
+    echo "<p>Gagal mengambil data Google Maps. Pastikan Place ID benar dan API Key valid.</p>";
+    if ($mapsData) {
+        echo "Error: " . $mapsData['message'];
+    }
+}
+
+?>

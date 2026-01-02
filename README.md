@@ -23,7 +23,22 @@ npm start
 
 Server akan berjalan di `http://localhost:3000`.
 
-## Dokumentasi API
+## Cara Menggunakan (Live Demo)
+
+Setelah deploy ke Vercel, Anda bisa mengakses API ini secara online tanpa perlu menyalakan komputer lokal.
+
+**Base URL:** `https://hk-getratings.vercel.app` (Contoh)
+
+### 1. Google Play Store
+`GET /api/playstore?id=com.whatsapp`
+
+### 2. Apple App Store
+`GET /api/appstore?id=310633997`
+
+### 3. Google Maps
+`GET /api/maps?place_id=ChIJ...`
+
+## Dokumentasi API (Lokal)
 
 ### 1. Google Play Store
 
