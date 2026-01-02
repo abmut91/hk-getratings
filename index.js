@@ -102,10 +102,11 @@ app.get('/api/appstore', async (req, res) => {
 // 3. Google Maps Route (Menggunakan Google Places API)
 app.get('/api/maps', async (req, res) => {
     const { place_id } = req.query;
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    // Prioritaskan Environment Variable, tapi izinkan override via query param
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || req.query.key;
 
     if (!apiKey) {
-        return res.status(500).json(formatResponse(false, null, 'API Key Google Maps tidak dikonfigurasi di .env'));
+        return res.status(500).json(formatResponse(false, null, 'API Key Google Maps tidak ditemukan. Set di .env atau kirim via parameter &key='));
     }
 
     if (!place_id) {
@@ -117,7 +118,7 @@ app.get('/api/maps', async (req, res) => {
         const response = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json`, {
             params: {
                 place_id: place_id,
-                fields: 'name,rating,user_ratings_total,url,icon,reviews',
+                fields: 'name,rating,user_ratings_total,url,icon,reviews,formatted_address,formatted_phone_number,website',
                 key: apiKey,
                 language: 'id'
             }
@@ -165,6 +166,46 @@ app.get('/api/search/playstore', async (req, res) => {
         res.json(formatResponse(true, results));
     } catch (error) {
         res.status(500).json(formatResponse(false, null, error.message));
+    }
+});
+
+// 5. Endpoint Pencarian Google Maps (Untuk mendapatkan Place ID)
+app.get('/api/search/maps', async (req, res) => {
+    const { q } = req.query;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || req.query.key;
+
+    if (!apiKey) {
+        return res.status(500).json(formatResponse(false, null, 'API Key Google Maps tidak ditemukan.'));
+    }
+    
+    if (!q) return res.status(400).json(formatResponse(false, null, 'Query "q" (nama tempat) diperlukan'));
+
+    try {
+        // Menggunakan Text Search API
+        const response = await axios.get(`https://maps.googleapis.com/maps/api/place/textsearch/json`, {
+            params: {
+                query: q,
+                key: apiKey,
+                language: 'id'
+            }
+        });
+
+        if (response.data.status !== 'OK' && response.data.status !== 'ZERO_RESULTS') {
+             throw new Error(response.data.error_message || response.data.status);
+        }
+
+        const results = response.data.results.map(place => ({
+            title: place.name,
+            placeId: place.place_id,
+            address: place.formatted_address,
+            score: place.rating,
+            ratings: place.user_ratings_total
+        }));
+
+        res.json(formatResponse(true, results));
+    } catch (error) {
+        console.error('Maps Search Error:', error.message);
+        res.status(500).json(formatResponse(false, null, 'Gagal mencari tempat: ' + error.message));
     }
 });
 

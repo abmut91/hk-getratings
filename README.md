@@ -37,8 +37,11 @@ Setelah deploy ke Vercel, Anda bisa mengakses API ini secara online tanpa perlu 
 
 ### 3. Google Maps
 `GET /api/maps?place_id=ChIJ...`
+*Jika API Key tidak diset di server, tambahkan parameter `&key=API_KEY` di URL.*
 
-## Dokumentasi API (Lokal)
+---
+
+## Dokumentasi API Lengkap
 
 ### 1. Google Play Store
 
@@ -67,18 +70,18 @@ Mengambil data aplikasi dari Apple App Store.
 **Contoh:**
 `GET http://localhost:3000/api/appstore?id=310633997` (WhatsApp)
 
-### 3. Google Maps
+### 3. Google Maps (Detail Tempat)
 
-Mengambil data rating tempat dari Google Maps.
-**PENTING:** Memerlukan `GOOGLE_MAPS_API_KEY` di file `.env`.
+Mengambil data rating dan ulasan tempat dari Google Maps.
 
 -   **URL:** `/api/maps`
 -   **Method:** `GET`
 -   **Params:**
     -   `place_id` (required): Place ID dari Google Maps.
+    -   `key` (optional): API Key Google Maps (jika tidak diset di .env server).
 
 **Contoh:**
-`GET http://localhost:3000/api/maps?place_id=ChIJ...`
+`GET http://localhost:3000/api/maps?place_id=ChIJN1t_tDeuEmsRUsoyG83frY4`
 
 ### 4. Pencarian Google Play
 
@@ -89,3 +92,27 @@ Mencari package name aplikasi.
 
 **Contoh:**
 `GET http://localhost:3000/api/search/playstore?q=gojek`
+
+### 5. Pencarian Google Maps (Cari Place ID)
+
+Mencari Place ID berdasarkan nama tempat.
+
+-   **URL:** `/api/search/maps`
+-   **Params:**
+    -   `q` (required): Nama tempat yang dicari.
+    -   `key` (optional): API Key Google Maps (jika tidak diset di .env server).
+
+**Contoh:**
+`GET http://localhost:3000/api/search/maps?q=Monas Jakarta`
+
+---
+
+## Tips: Cara Mendapatkan Place ID
+
+Anda bisa mendapatkan Place ID dengan 2 cara:
+
+1.  **Menggunakan Endpoint Pencarian (Baru):**
+    Gunakan endpoint `/api/search/maps?q=NamaTempat` yang sudah disediakan di aplikasi ini.
+
+2.  **Menggunakan Tool Resmi Google:**
+    Kunjungi [Google Maps Place ID Finder](https://developers.google.com/maps/documentation/places/web-service/place-id).

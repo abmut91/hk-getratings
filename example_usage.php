@@ -27,7 +27,7 @@ function getRating($url) {
 echo "<h1>Demo Ambil Rating & Ulasan</h1>";
 
 // --- Google Play Store ---
-$playStoreId = 'com.whatsapp';
+$playStoreId = 'com.henskristal.hens_kristal';
 $playStoreUrl = "$baseUrl/api/playstore?id=$playStoreId";
 $playStoreData = getRating($playStoreUrl);
 
@@ -46,7 +46,7 @@ if ($playStoreData && $playStoreData['success']) {
 echo "<hr>";
 
 // --- App Store ---
-$appStoreId = '310633997'; // WhatsApp
+$appStoreId = '6473765666'; // WhatsApp
 $appStoreUrl = "$baseUrl/api/appstore?id=$appStoreId";
 $appStoreData = getRating($appStoreUrl);
 
@@ -72,7 +72,10 @@ if ($appStoreData && $appStoreData['success']) {
 echo "<hr>";
 
 // --- Google Maps ---
-// Ganti dengan Place ID yang valid
+// Ganti dengan Place ID yang valid. 
+// Cara dapat Place ID:
+// 1. Pakai endpoint search API: /api/search/maps?q=NamaTempat&key=API_KEY
+// 2. Atau cari di: https://developers.google.com/maps/documentation/places/web-service/place-id
 $placeId = 'ChIJN1t_tDeuEmsRUsoyG83frY4'; // Contoh: Google Sydney
 // Jika API Key belum diset di Vercel, Anda bisa menambahkannya di URL: &key=API_KEY_ANDA
 $mapsUrl = "$baseUrl/api/maps?place_id=$placeId"; 
