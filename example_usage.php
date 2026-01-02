@@ -1,10 +1,10 @@
 <?php
 // Contoh cara mengambil data rating menggunakan PHP dari API Vercel Anda
 
-// 1. URL API Anda (Ganti dengan URL Vercel yang Anda dapatkan)
-$baseUrl = 'https://hk-getratings.vercel.app'; 
+// 1. URL API Anda (IP VPS IONOS Anda)
+$baseUrl = 'http://74.208.64.184'; 
 // Atau gunakan localhost jika tes lokal:
-// $baseUrl = 'http://localhost:3000';
+// $baseUrl = 'http://localhost';
 
 // 2. Fungsi Helper untuk mengambil data
 function getRating($url) {
@@ -38,7 +38,31 @@ if ($playStoreData && $playStoreData['success']) {
     echo "Versi: {$d['version']}<br>";
     echo "Rating: <strong>{$d['score']}</strong> / 5 ({$d['ratings']} users)<br>";
     echo "<img src='{$d['icon']}' width='50'><br>";
-    echo "<strong>Apa yang baru:</strong><br>" . nl2br($d['recentChanges']);
+    echo "<strong>Apa yang baru:</strong><br>" . nl2br($d['recentChanges'] ?? '-');
+    
+    // Screenshots
+    if (!empty($d['screenshots']) && is_array($d['screenshots'])) {
+        echo "<br><strong>Screenshot:</strong><div style='overflow-x:auto; white-space:nowrap; margin-top:10px;'>";
+        foreach (array_slice($d['screenshots'], 0, 5) as $ss) {
+             echo "<img src='$ss' height='150' style='margin-right:5px;'>";
+        }
+        echo "</div>";
+    }
+
+    echo "<br><strong>Ulasan Terbaru:</strong><br>";
+    if (!empty($d['recent_reviews']) && is_array($d['recent_reviews'])) {
+        echo "<ul>";
+        foreach ($d['recent_reviews'] as $review) {
+             $author = $review['userName'] ?? 'User';
+             $rating = $review['score'] ?? '-';
+             $text = $review['text'] ?? '';
+             $date = $review['date'] ?? '';
+            echo "<li><strong>{$author}</strong> ({$rating}/5) - {$date}<br>{$text}</li>";
+        }
+        echo "</ul>";
+    } else {
+        echo "Belum ada ulasan atau gagal mengambil ulasan.<br>";
+    }
 } else {
     echo "<p>Gagal mengambil data Play Store</p>";
 }

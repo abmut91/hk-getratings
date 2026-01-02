@@ -178,7 +178,7 @@ app.get('/api/maps', async (req, res) => {
         const response = await axios.get(`https://maps.googleapis.com/maps/api/place/details/json`, {
             params: {
                 place_id: place_id,
-                fields: 'name,rating,user_ratings_total,url,icon,reviews,formatted_address,formatted_phone_number,website',
+                fields: 'name,rating,user_ratings_total,url,icon,reviews,formatted_address,formatted_phone_number,website,opening_hours,photos,geometry,types,price_level',
                 key: apiKey,
                 language: 'id'
             }
@@ -191,6 +191,7 @@ app.get('/api/maps', async (req, res) => {
         const details = response.data.result;
 
         const result = {
+            ...details, // Sertakan semua data raw
             title: details.name,
             placeId: place_id,
             score: details.rating,
