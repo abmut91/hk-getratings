@@ -4,6 +4,7 @@ import gplay from 'google-play-scraper';
 import appStore from 'app-store-scraper';
 import axios from 'axios';
 import cors from 'cors';
+import fs from 'fs';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,14 +24,46 @@ const formatResponse = (success, data, message = '') => {
 app.get('/', (req, res) => {
     res.send({
         message: 'Rating Scraper API is running',
-        last_updated: '2025-01-02 (Update: Reviews & Screenshots)',
+        last_updated: '2025-01-02 (Update: Web Setup Config)',
         endpoints: {
             google_play: '/api/playstore?id=com.henskristal.hens_kristal',
             app_store: '/api/appstore?id=6473765666',
             google_maps: '/api/maps?place_id=PLACE_ID_HERE',
-            search_maps: '/api/search/maps?q=Monas'
+            search_maps: '/api/search/maps?q=Monas',
+            setup_config: '/setup?key=YOUR_API_KEY'
         }
     });
+});
+
+// Endpoint untuk setup API Key via Browser (Solusi jika tidak bisa paste di terminal)
+app.get('/setup', (req, res) => {
+    const key = req.query.key;
+    if (!key) {
+        return res.send(`
+            <h2>Cara Setting API Key</h2>
+            <p>Masukkan API Key Anda di URL. Contoh:</p>
+            <code>${req.protocol}://${req.get('host')}/setup?key=MASUKKAN_KEY_DISINI</code>
+        `);
+    }
+
+    try {
+        const envContent = `PORT=3000\nGOOGLE_MAPS_API_KEY=${key}`;
+        fs.writeFileSync('.env', envContent);
+        
+        // Update process env agar langsung aktif tanpa restart (untuk sesi ini)
+        process.env.GOOGLE_MAPS_API_KEY = key;
+
+        res.send(`
+            <h1>Berhasil Disimpan!</h1>
+            <p>API Key Google Maps telah berhasil disimpan ke server.</p>
+            <p>Server sekarang menggunakan key: <b>${key.substring(0, 10)}...</b></p>
+            <p>Silakan coba tes endpoint maps sekarang: <a href="/api/search/maps?q=Monas">Cari Monas</a></p>
+            <br>
+            <p><i>Catatan: Agar perubahan permanen jika server restart otomatis, jalankan 'pm2 restart hk-getratings' di terminal nanti (tidak wajib sekarang).</i></p>
+        `);
+    } catch (err) {
+        res.status(500).send('Gagal menyimpan file: ' + err.message);
+    }
 });
 
 // 1. Google Play Store Route
