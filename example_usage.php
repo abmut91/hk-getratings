@@ -53,17 +53,32 @@ $appStoreData = getRating($appStoreUrl);
 if ($appStoreData && $appStoreData['success']) {
     $d = $appStoreData['data'];
     echo "<h3>App Store: {$d['title']}</h3>";
-    echo "Developer: {$d['developer']}<br>";
-    echo "Versi: {$d['currentVersion']}<br>";
+    echo "Developer: " . ($d['developer'] ?? '-') . "<br>";
+    echo "Versi: " . ($d['currentVersion'] ?? '-') . "<br>";
     echo "Rating: <strong>{$d['score']}</strong> / 5 ({$d['ratings']} users)<br>";
     echo "<img src='{$d['icon']}' width='50'><br>";
+    
+    // Screenshots
+    if (!empty($d['screenshots']) && is_array($d['screenshots'])) {
+        echo "<div style='overflow-x:auto; white-space:nowrap; margin-top:10px;'>";
+        foreach (array_slice($d['screenshots'], 0, 3) as $ss) {
+             echo "<img src='$ss' height='150' style='margin-right:5px;'>";
+        }
+        echo "</div>";
+    }
+
     echo "<strong>Ulasan Terbaru:</strong><br>";
-    if (!empty($d['reviews'])) {
+    if (!empty($d['recent_reviews']) && is_array($d['recent_reviews'])) {
         echo "<ul>";
-        foreach ($d['reviews'] as $review) {
-            echo "<li><strong>{$review['userName']}</strong> ({$review['score']}/5): {$review['text']}</li>";
+        foreach ($d['recent_reviews'] as $review) {
+             $author = $review['userName'] ?? 'User';
+             $rating = $review['score'] ?? '-';
+             $text = $review['text'] ?? '';
+            echo "<li><strong>{$author}</strong> ({$rating}/5): {$text}</li>";
         }
         echo "</ul>";
+    } else {
+        echo "Belum ada ulasan atau gagal mengambil ulasan.<br>";
     }
 } else {
     echo "<p>Gagal mengambil data App Store</p>";

@@ -23,10 +23,12 @@ const formatResponse = (success, data, message = '') => {
 app.get('/', (req, res) => {
     res.send({
         message: 'Rating Scraper API is running',
+        last_updated: '2025-01-02 (Update: Reviews & Screenshots)',
         endpoints: {
             google_play: '/api/playstore?id=com.henskristal.hens_kristal',
             app_store: '/api/appstore?id=6473765666',
-            google_maps: '/api/maps?place_id=PLACE_ID_HERE'
+            google_maps: '/api/maps?place_id=PLACE_ID_HERE',
+            search_maps: '/api/search/maps?q=Monas'
         }
     });
 });
@@ -40,23 +42,37 @@ app.get('/api/playstore', async (req, res) => {
     }
 
     try {
-        const details = await gplay.app({
-            appId: id,
-            lang: lang || 'id',
-            country: country || 'id'
-        });
+        const [details, reviewsData] = await Promise.all([
+            gplay.app({
+                appId: id,
+                lang: lang || 'id',
+                country: country || 'id'
+            }),
+            gplay.reviews({
+                appId: id,
+                lang: lang || 'id',
+                country: country || 'id',
+                num: 5 // Ambil 5 ulasan terbaru
+            })
+        ]);
+
+        // reviewsData bisa berupa array atau object tergantung versi, kita handle keduanya
+        const reviews = Array.isArray(reviewsData) ? reviewsData : (reviewsData.data || []);
 
         const result = {
             title: details.title,
             appId: details.appId,
             score: details.score,
             ratings: details.ratings,
-            reviews: details.reviews,
+            reviews_count: details.reviews,
             version: details.version,
             recentChanges: details.recentChanges,
+            description: details.description,
+            screenshots: details.screenshots,
             developer: details.developer,
             url: details.url,
-            icon: details.icon
+            icon: details.icon,
+            recent_reviews: reviews
         };
 
         res.json(formatResponse(true, result));
@@ -75,21 +91,32 @@ app.get('/api/appstore', async (req, res) => {
     }
 
     try {
-        const details = await appStore.app({
-            id: id,
-            country: country || 'id'
-        });
+        const [details, reviews] = await Promise.all([
+            appStore.app({
+                id: id,
+                country: country || 'id'
+            }),
+            appStore.reviews({
+                id: id,
+                country: country || 'id',
+                sort: appStore.sort.RECENT,
+                page: 1
+            })
+        ]);
 
         const result = {
             title: details.title,
             appId: details.id,
             score: details.score,
-            ratings: details.ratings,
-            reviews: details.reviews,
+            ratings: details.ratings, // Jumlah rating
+            reviews_count: details.reviews, // Jumlah ulasan (jika ada)
             currentVersion: details.version,
+            description: details.description,
+            screenshots: details.screenshots,
             developer: details.developer,
             url: details.url,
-            icon: details.icon
+            icon: details.icon,
+            recent_reviews: reviews.slice(0, 5) // Ambil 5 teratas
         };
 
         res.json(formatResponse(true, result));
