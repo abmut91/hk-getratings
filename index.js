@@ -124,18 +124,29 @@ app.get('/api/appstore', async (req, res) => {
     }
 
     try {
-        const [details, reviews] = await Promise.all([
-            appStore.app({
-                id: id,
-                country: country || 'id'
-            }),
-            appStore.reviews({
-                id: id,
-                country: country || 'id',
-                sort: appStore.sort.RECENT,
-                page: 1
-            })
-        ]);
+        const details = await appStore.app({
+            id: id,
+            country: country || 'id'
+        });
+
+        // Fetch 10 pages of reviews parallelly (Total ~500 reviews)
+        // App Store Scraper fetches 50 reviews per page.
+        // Fetching "ALL" is hard because API limits, so we fetch a large reasonable amount (500).
+        const pageCount = 10;
+        const reviewPromises = [];
+        for (let i = 1; i <= pageCount; i++) {
+            reviewPromises.push(
+                appStore.reviews({
+                    id: id,
+                    country: country || 'id',
+                    sort: appStore.sort.RECENT,
+                    page: i
+                }).catch(() => []) // Ignore errors on specific pages
+            );
+        }
+
+        const reviewsResults = await Promise.all(reviewPromises);
+        const allReviews = reviewsResults.flat();
 
         const result = {
             title: details.title,
@@ -149,7 +160,7 @@ app.get('/api/appstore', async (req, res) => {
             developer: details.developer,
             url: details.url,
             icon: details.icon,
-            recent_reviews: reviews.slice(0, 5) // Ambil 5 teratas
+            recent_reviews: allReviews // Return semua yang didapat (hingga ~500)
         };
 
         res.json(formatResponse(true, result));
